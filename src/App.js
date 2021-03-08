@@ -79,9 +79,9 @@ function App() {
       });
     });
     if (isDIY) {
-      setDiySymDiffResult(result);
+      setDiySymDiffResult(result.sort((a, b) => a - b));
     } else {
-      setSymDiffResult(result);
+      setSymDiffResult(result.sort((a, b) => a - b));
     }
   }
 
@@ -134,12 +134,12 @@ function App() {
                 type="submit"
                 value="Submit Palindrome"
               />
+              {palindromeResult !== "" ? (
+                <div className="mt-20 border border-white px-5 py-2 rounded-md text-l">
+                  {palindromeResult}
+                </div>
+              ) : null}
             </form>
-            {palindromeResult !== "" ? (
-              <div className="mt-5 border border-white px-5 py-2 rounded-md text-l">
-                {palindromeResult}
-              </div>
-            ) : null}
           </div>
           <div className="flex flex-col justify-start ">
             <div className="bg-gray-900 h-full lg:px-10 px-5 py-6 rounded-md">
