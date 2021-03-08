@@ -5,18 +5,24 @@ function App() {
   const [palindromeWord, setPalindromeWord] = useState("");
   const [palindromeResult, setPalindromeResult] = useState("");
   const [sortedNumArray, setSortedNumArray] = useState([]);
+  const [diySortedNumArray, setDiySortedNumArray] = useState("");
+  const [diySortedNumArrayResult, setDiySortedNumArrayResult] = useState([]);
+  const [diySortedErrorMessage, setDiySortedErrorMessage] = useState("");
   const [symDiffResult, setSymDiffResult] = useState([]);
   const numArray = [3, 4, 5, 1, 2];
   const symDiffA = [1, 2, 3, 4, 5];
   const symDiffB = [3, 4, 8, 7];
+  const [diyDiffSymA, setDiyDiffSymA] = useState("");
+  const [diyDiffSymB, setDiyDiffSymB] = useState("");
+  const [diySymDiffResult, setDiySymDiffResult] = useState([]);
 
   const checkPalindrome = (e) => {
     e.preventDefault();
-    var re = /[\W_]/g;
+    const re = /[\W_]/g;
 
-    var lowRegStr = palindromeWord.toLowerCase().replace(re, "");
+    const lowRegStr = palindromeWord.toLowerCase().replace(re, "");
 
-    var reverseStr = lowRegStr.split("").reverse().join("");
+    const reverseStr = lowRegStr.split("").reverse().join("");
 
     if (reverseStr === lowRegStr) {
       setPalindromeResult("It is a palindrome");
@@ -31,17 +37,34 @@ function App() {
     setSortedNumArray(sort);
   };
 
+  const sortDIYAscending = (e) => {
+    e.preventDefault();
+    const isValid = /^[0-9,.]*$/.test(diySortedNumArray);
+    console.log("regex", isValid);
+    if (isValid) {
+      const split = diySortedNumArray.split(",").map(function (item) {
+        return parseInt(item, 10);
+      });
+      const sort = split.sort((a, b) => a - b);
+
+      setDiySortedNumArrayResult(sort);
+    } else {
+      setDiySortedErrorMessage("Please only input number and comma");
+    }
+  };
+
   function symDiff() {
-    var sets = [],
+    const sets = [],
       result = [];
-    var args = Array.prototype.slice.call(arguments, 0);
+    const isDIY = arguments[0];
+    const args = Array.prototype.slice.call(arguments, 1);
     args.forEach(function (arr) {
       sets.push(new Set(arr));
     });
 
     args.forEach(function (array, arrayIndex) {
       array.forEach(function (item) {
-        var found = false;
+        let found = false;
         for (var setIndex = 0; setIndex < sets.length; setIndex++) {
           if (setIndex !== arrayIndex) {
             if (sets[setIndex].has(item)) {
@@ -55,50 +78,148 @@ function App() {
         }
       });
     });
-    setSymDiffResult(result);
+    if (isDIY) {
+      setDiySymDiffResult(result);
+    } else {
+      setSymDiffResult(result);
+    }
   }
 
   const SymDiffCount = (e) => {
     e.preventDefault();
 
-    symDiff(symDiffA, symDiffB);
+    symDiff(false, symDiffA, symDiffB);
+  };
+
+  const DiySymDiffCount = (e) => {
+    e.preventDefault();
+    const aIsValid = /^[0-9,.]*$/.test(diyDiffSymA);
+    const bIsValid = /^[0-9,.]*$/.test(diyDiffSymB);
+    if (aIsValid && bIsValid) {
+      const splitA = diyDiffSymA.split(",").map(function (item) {
+        return parseInt(item, 10);
+      });
+      const splitB = diyDiffSymB.split(",").map(function (item) {
+        return parseInt(item, 10);
+      });
+      symDiff(true, splitA, splitB);
+    }
   };
 
   return (
-    <div className="App">
+    <div className="bg-gray-600 min-h-screen text-white">
+      <header>
+        <h1 className="p-12 text-white text-center font-bold text-4xl">{`SRW&Co Technical Test`}</h1>
+      </header>
       <main>
-        <div>
-          <form onSubmit={checkPalindrome}>
-            <div style={{ marginTop: 50, marginBottom: 10 }}>
-              1. Palindrome Test
-            </div>
-            <div>
-              Enter a string:
+        <div className="grid grid-cols-3 gap-3 bg-gray-900 mx-5">
+          <div className="bg-red-900 flex flex-col items-center justify-start pt-6">
+            <form onSubmit={checkPalindrome}>
+              <h3 className="text-xl">1. Palindrome Test</h3>
+              <div>
+                Enter words:
+                <input
+                  placeholder="Example race car"
+                  className="bg-gray-200 ml-3 rounded-md py-1 text-black mt-5 px-1"
+                  type="text"
+                  value={palindromeWord}
+                  onChange={(e) => setPalindromeWord(e.target.value)}
+                />
+              </div>
               <input
-                type="text"
-                value={palindromeWord}
-                onChange={(e) => setPalindromeWord(e.target.value)}
+                className="bg-gray-200 float-right rounded-md text-black mt-5 px-3 py-1"
+                type="submit"
+                value="Submit Palindrome"
               />
-              <input type="submit" value="submit" />
-            </div>
-          </form>
-          <div>{palindromeResult}</div>
-          <div style={{ marginTop: 40, marginBottom: 10 }}>
+            </form>
+            {palindromeResult !== "" ? (
+              <div className="mt-5 border border-white px-5 py-2 rounded-md text-l">
+                {palindromeResult}
+              </div>
+            ) : null}
+          </div>
+          <div className="flex flex-col px-10 justify-start pt-6">
             <form onSubmit={sortAscending}>
-              2. Sort Ascending
-              <div
-                style={{ marginTop: 10 }}
-              >{`[${numArray}] = [${sortedNumArray}]`}</div>
-              <input style={{ marginTop: 5 }} type="submit" value="submit" />
+              <h3 className="text-xl">2. Sort Ascending</h3>
+              <div className="text-center mt-5">{`[${numArray}] = [${sortedNumArray}]`}</div>
+              <input
+                className="bg-gray-200 float-right rounded-md text-black mt-5 px-5 py-1"
+                type="submit"
+                value="Sort"
+              />
+            </form>
+            <form
+              className="border border-white p-3 mt-5 rounded-md"
+              onSubmit={sortDIYAscending}
+            >
+              <h5> Input your own number! (please seperate with comma)</h5>
+              <div>
+                <div>
+                  <input
+                    placeholder="Example 7,3,4,5"
+                    className="bg-gray-200 rounded-md py-1 text-black mt-5 px-1"
+                    type="text"
+                    value={diySortedNumArray}
+                    onChange={(e) => setDiySortedNumArray(e.target.value)}
+                  />
+                  {` = [${diySortedNumArrayResult}]`}
+                </div>
+              </div>
+              <input
+                className="bg-gray-200 float-right rounded-md text-black mt-5 px-5 py-1"
+                type="submit"
+                value="Sort"
+              />
+              <div style={{ color: "red", marginTop: 5 }}>
+                {diySortedErrorMessage}
+              </div>
             </form>
           </div>
-          <div style={{ marginTop: 30 }}>
-            3. Symmetric Difference
-            <form style={{ marginTop: 10 }} onSubmit={SymDiffCount}>
+          <div className="bg-red-900 flex flex-col justify-start py-6 px-10">
+            <h3 className="text-xl">3. Symmetric Difference</h3>
+            <form
+              style={{ marginTop: 10, marginBottom: 20 }}
+              onSubmit={SymDiffCount}
+            >
               <div>{`Array 1: ${symDiffA}`}</div>
               <div>{`Array 2: ${symDiffB}`}</div>
               <div>{`Symmetric Difference: ${symDiffResult}`}</div>
-              <input style={{ marginTop: 10 }} type="submit" value="submit" />
+              <input
+                className="bg-gray-200 float-right rounded-md text-black mt-5 px-5 py-1"
+                type="submit"
+                value="Calculate"
+              />
+            </form>
+            <h5> Input your own number! (please seperate with comma)</h5>
+            <form style={{ marginTop: 10 }} onSubmit={DiySymDiffCount}>
+              <div>
+                {`Array 1: `}
+                <input
+                  placeholder="Example 7,3,4,5"
+                  className="bg-gray-200 ml-3 rounded-md py-1 text-black mt-5 px-1"
+                  type="text"
+                  value={diyDiffSymA}
+                  onChange={(e) => setDiyDiffSymA(e.target.value)}
+                />
+              </div>
+              <div>
+                {`Array 2: `}
+                <input
+                  placeholder="Example 7,3,4,5"
+                  className="bg-gray-200 ml-3 rounded-md py-1 text-black mt-5 px-1"
+                  type="text"
+                  value={diyDiffSymB}
+                  onChange={(e) => setDiyDiffSymB(e.target.value)}
+                />
+              </div>
+              <div
+                style={{ marginTop: 10 }}
+              >{`Symmetric Difference: ${diySymDiffResult}`}</div>
+              <input
+                className="bg-gray-200 float-right rounded-md text-black mt-5 px-5 py-1"
+                type="submit"
+                value="Calculate"
+              />
             </form>
           </div>
         </div>
